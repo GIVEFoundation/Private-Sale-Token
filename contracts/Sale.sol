@@ -6,18 +6,16 @@ pragma solidity ^0.4.21;
   Sale(address ethwallet)   // this will send the received ETH funds to this address
 */
 
-
 contract ERC20 {
   uint public totalSupply;
-  function balanceOf(address who) constant returns (uint);
-  function allowance(address owner, address spender) constant returns (uint);
-  function transfer(address to, uint value) returns (bool ok);
-  function transferFrom(address from, address to, uint value) returns (bool ok);
-  function approve(address spender, uint value) returns (bool ok);
-  function mintToken(address to, uint256 value) returns (uint256);
-  function changeTransfer(bool allowed);
+  function balanceOf(address who) public constant returns (uint);
+  function allowance(address owner, address spender) public constant returns (uint);
+  function transfer(address to, uint value) public returns (bool ok);
+  function transferFrom(address from, address to, uint value) public returns (bool ok);
+  function approve(address spender, uint value) public returns (bool ok);
+  function mintToken(address to, uint256 value) public returns (uint256);
+  function changeTransfer(bool allowed) public;
 }
-
 
 contract Sale {
 
@@ -34,26 +32,22 @@ contract Sale {
     bool private configSet;
     address public creator;
 
-    mapping (address => uint256) public heldTokens;
-    mapping (address => uint) public heldTimeline;
-
     event Contribution(address from, uint256 amount);
     event ReleaseTokens(address from, uint256 amount);
 
-    function Sale(address _wallet) {
+    constructor(address _wallet) public {
         startBlock = block.number;
-        maxMintable = 33333333000000000000000000; // TODO : check this value 33,333,333 max sellable (18 decimals)
+        maxMintable = 33333333000000000000000000; // 33,333,333 
         ETHWallet = _wallet;
         isFunding = true;
         creator = msg.sender;
-        createHeldCoins();
-        exchangeRate = 750000;  // TODO : check this value
+        exchangeRate = 3636;  // 0.000275 ETH
     }
 
     // setup function to be ran only 1 time
     // setup token address
     // setup end Block number
-    function setup(address token_address, uint end_block) {
+    function setup(address token_address, uint end_block) public {
         require(!configSet);
         Token = ERC20(token_address);
         endBlock = end_block;
@@ -65,7 +59,7 @@ contract Sale {
       isFunding = false;
     }
 
-    function () payable {
+    function () payable public {
         require(msg.value>0);
         require(isFunding);
         require(block.number <= endBlock);
@@ -75,7 +69,7 @@ contract Sale {
         totalMinted += total;
         ETHWallet.transfer(msg.value);
         Token.mintToken(msg.sender, amount);
-        Contribution(msg.sender, amount);
+        emit Contribution(msg.sender, amount);
     }
 
     // CONTRIBUTE FUNCTION
@@ -90,7 +84,7 @@ contract Sale {
         totalMinted += total;
         ETHWallet.transfer(msg.value);
         Token.mintToken(msg.sender, amount);
-        Contribution(msg.sender, amount);
+        emit Contribution(msg.sender, amount);
     }
 
     // update the ETH/GI0 rate
@@ -110,40 +104,5 @@ contract Sale {
     function changeTransferStats(bool _allowed) external {
         require(msg.sender==creator);
         Token.changeTransfer(_allowed);
-    }
-
-    // internal function that allocates a specific amount of TOKENS at a specific block number.
-    // only ran 1 time on initialization
-    // TODO : check if we will do this
-    function createHeldCoins() internal {
-        createHoldToken(msg.sender, 1000);
-        createHoldToken(0x4f70Dc5Da5aCf5e71905c3a8473a6D8a7E7Ba4c5, 100000000000000000000000);
-        createHoldToken(0x393c82c7Ae55B48775f4eCcd2523450d291f2418, 100000000000000000000000);
-    }
-
-    // public function to get the amount of tokens held for an address
-    function getHeldCoin(address _address) public constant returns (uint256) {
-        return heldTokens[_address];
-    }
-
-    // function to create held tokens for developer
-    function createHoldToken(address _to, uint256 amount) internal {
-        heldTokens[_to] = amount;
-        heldTimeline[_to] = block.number + 0;
-        heldTotal += amount;
-        totalMinted += heldTotal;
-    }
-
-    // function to release held tokens for developers
-    function releaseHeldCoins() external {
-        uint256 held = heldTokens[msg.sender];
-        uint heldBlock = heldTimeline[msg.sender];
-        require(!isFunding);
-        require(held >= 0);
-        require(block.number >= heldBlock);
-        heldTokens[msg.sender] = 0;
-        heldTimeline[msg.sender] = 0;
-        Token.mintToken(msg.sender, held);
-        ReleaseTokens(msg.sender, held);
     }
 }
