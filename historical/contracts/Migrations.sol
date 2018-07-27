@@ -1,9 +1,4 @@
-pragma solidity ^0.4.11;
-
-// These are useless imports, but they force these contracts to be compiled. We need their build
-// files for the test pipeline.
-import "tokens/eip20/EIP20.sol";
-import "plcr-revival/PLCRFactory.sol";
+pragma solidity ^0.4.17;
 
 contract Migrations {
   address public owner;
@@ -13,7 +8,7 @@ contract Migrations {
     if (msg.sender == owner) _;
   }
 
-  function Migrations() public {
+  constructor() public {
     owner = msg.sender;
   }
 

@@ -1,69 +1,107 @@
-# GIVE ICO Contracts
+# GIVE Token-Curated Registry
 
-# GI0
 
-First deploy the Sale contract, and then the Token contract. 
-Token contract will require the Sale Contract address.
-
-## Contract Details
-- Creates/Mints 33,333,333 Tokens and holds them inside contract.
-- ERC20 and Sale Contract both reference eachother
-- Converts payable ETH to GI0 directly to user
-- ETH payed to contract is forwarded to a GIVE foundation wallet (holds ICO funds)
-- Updateable ETH/TOKEN rate
-- Developers and Founders can allocate a specific amount of tokens to be released at later date.
-- Ability to turn on/off transfer of coins. (via sale contract)
-- Crowdsale ends on a specific block number
-- Token contributions will be removed from the Mint and transfered to the purchaser.
-- Users that have tokens held can release them once time has passed without owner permission. 
-
-# Deploy Instructions
-
-1. You must deploy the Sale contract first. Include a wallet address for ETH to be sent to for each contribution. Example: `Sale("0x004F3E7fFA2F06EA78e14ED2B13E87d710e8013F")` creating contract [0x2b15ebaab98a5af6b0e3e9baef3580b9a387ffed](https://ropsten.etherscan.io/address/0x2b15ebaab98a5af6b0e3e9baef3580b9a387ffed)
-
-2. Once you have the Sale contract, deploy the Token contract. When you deploy the Token contract, you must include the Sale contract address when you deploy the contract. Example: `Token("0x2b15ebaab98a5af6b0e3e9baef3580b9a387ffed")` creating token contract [0x501775ea69e834c2cdc0be13ab25704d92168101]
-
-3. Now you can finalize the process by running the `setup` function to the Sale contract. The setup function requires the token contract address and then ending block number of when the ICO should end. The owner of the contract can also end at any time. Example: `setup("0x501775ea69e834c2cdc0be13ab25704d92168101", 7000000)` creating transaction [0x682392db4d184fc5e96c7dbf53b29c891d7158422ecd7935b484159ed633ca79] (In this example ICO sale will end and expire on block #7000000).
-
-4. **ICO has begun!** You can now send ETH to the Sale contract address to receive your new tokens! I sent 1 ETH with data: `0xd7bb99ba` to my Sale contract address. The user must send ETH or the transaction will fail! Example: 1 ETH - Data: `0xd7bb99ba` - Gas Limit: `80000` creating transaction [0xbf541f8b39d5b94670c909e85cec8035b7c30d178d2c6e5637e1ad395ca2d9b2] This transaction sent 1 ETH to the ETH wallet address and also sent me 750000 Tokens. 
-
-5. Once received the desired amount for the ICO you can close it with the `closeSale` function. Example: `closeSale()` creating transaction [0xae7608515185bfeb3aa185890edb733bc5c0031f392ece5366179463bd27e430]. The ICO Sale is over!
-
-This ICO-sale contract will allow you to change owners, change token rate per ETH, hold tokens for a specific amount of time, and allow users that have tokens held. The Sale contract locks the tokens, once the set block height has been passed, the user can run `realeaseHeldCoins()` (`0x6ce5b3cf`) to the sale contract to receive their tokens if the time has passed! Example: [0xf1856d866db8a022b847960b5caa55170640714dbd14e981625d6cf373973885](https://ropsten.etherscan.io/tx/0xf1856d866db8a022b847960b5caa55170640714dbd14e981625d6cf373973885)
-
-### Crowdsale Contract
-`function contribute() external payable` is the function for the purchaser to mint new tokens. (Data: `0xd7bb99ba`)
-
-### ERC20 Additions
-When the token contract is deployed, it will require the Sale Contract address and will be set 1 and only 1 time. If you set an incorrect address when you deploy the ERC20 you'll have to re-deploy the sale and ERC20 again. This is for security, 1 time set functions.
-
-#### Minting Tokens
-Minting Tokens call comes from the Sale contract, when the ERC20 is deployed it will force the Sale contract.
-`function mintToken(address to, uint256 amount) external returns (bool success);`
-
-Change "transfer" method from the Sale Contract. 
-`function changeTransfer(bool allowed);`
-
-### Hold Token Period
-
-The Sale Contract will allow you to hold a specific amount of tokens for an amount of time before being released directly to address. The createHoldToken function requires an address and the amount of tokens given at end of period.
+## Initialize
+The only environmental dependency you need is Node.
 ```
-function createHeldCoins() internal {
-  createHoldToken(0x4f70Dc5Da5aCf5e71988c3a8473a6D8a7E7Ba4c9, 100000000000000000000000); // 100,000
-  createHoldToken(0x323c82c7Ae55B48745f4eCcd2523450d291f2412, 250000000000000000000000); // 250,000
+npm install
+npm run compile
+```
+## Configuration 
+
+Edit `conf/config.json` 
+
+Defaults Parameters:
+
+<table>
+  <tr>
+    <td><b>Parameter</td>
+    <td><b>Description</td>
+  </tr>
+  <tr>
+    <td>minDeposit</td>
+    <td>The number of tokens a candidate must lock as a deposit for their application, and for the duration of their listing thereafter.</td>
+  </tr>
+  <tr>
+    <td>applyStageLen</td>
+    <td>The duration, in blocks or epoch time, during which an application can be challenged. If this period passes with no challenge being issued, the candidate becomes a listee.</td>
+  </tr>
+  <tr>
+    <td>commitStageLen</td>
+    <td>The duration, in blocks or epoch time, during which token holders can commit votes for a particular challenge.</td>
+  </tr>
+  <tr>
+    <td>revealStageLen</td>
+    <td>The duration, in blocks or epoch time, during which token holders can reveal committed votes for a particular challenge.</td>
+  </tr>
+  <tr>
+    <td>dispensationPct</td>
+    <td>The percentage of the forfeited deposit in a challenge which is awarded to the winning party as a special dispensation compensating for their capital risk.</td>
+  </tr>
+  <tr>
+    <td>voteQuorum [1]</td>
+    <td>The percentage of tokens out of the total tokens revealed in favor of admitting/keeping a challenged candidate necessary for that candidate to get/keep listee status. The VOTE_QUORUM does not count non-voting tokens, and unrevealed tokens are considered non-voting. By way of example, a VOTE_QUORUM of 50 means all challenges are simple majority votes.</td>
+  </tr>
+</table>
+
+Token Parameters:
+
+<table>
+  <tr>
+    <td><b>Parameter</td>
+    <td><b>Description</td>
+  </tr>
+  <tr>
+    <td>address</td>
+    <td>Address of deployed contract (only used if deployToken=false).</td>
+  </tr>
+  <tr>
+    <td>deployToken</td>
+    <td>If true will deploy token contract, if false will use contract address from previous parameter</td>
+  </tr>
+  <tr>
+    <td>name</td>
+    <td>Token Name</td>
+  </tr>
+  <tr>
+    <td>symbol</td>
+    <td>Token Symbol (GIV)</td>
+  </tr>
+  <tr>
+    <td>supply</td>
+    <td>Tokens emission (how many tokens are available). (18 decimals)</td>
+  </tr>
+  <tr>
+    <td>tokenHolders</td>
+    <td>Array of token holders in the form : {address,amount} , Example : <pre> [{ "address": "0x627306090abaB3A6e1400e9345bC60c78a8BEf57", "amount": "250000000000000000000000000" }, { "address": "0xf17f52151EbEF6C7334FAD080c5704D77216b732", "amount": "250000000000000000000000000" }]`</pre></td>
+  </tr>
+</table>
+
+## Tests
+
+You can run it with `npm run test`. 
+To run the tests with the RPC logs, use `npm run test gas`.
+
+## Composition of the repo
+The repo is composed as a Truffle project, and is largely idiomatic to Truffle's conventions. The tests are in the `test` directory, the contracts are in the `contracts` directory and the migrations (deployment scripts) are in the `migrations` directory. Furthermore there is a `conf` directory containing json files where deployments can be parameterized.
+
+## Deploying 
+In the `token` object, set `deployToken` to `true` if you want to deploy token as part of the TCR deployment. You can specifiy initial recipients of the token in the `tokenHolders` array. If you have already deployed a token, set `deployToken` to `false` and provide the token's address in the `address` property.
+
+The `package.json` includes scripts for deploying to rinkeby and mainnet. Modify `truffle.js` and `package.json` if you need other networks. You'll need a `secrets.json` file with a funded mnemonic on the `m/44'/60'/0'/0/0` HD path in the root of the repo to deploy. Your `secrets.json` should look like this:
+
+```json
+{
+  "mnemonic": "my good mnemonic ..."
 }
 ```
 
-You can change the amount of blocks in future to release.
-```
-function createHoldToken(address _to, uint256 amount) internal {
-...
-  heldTimeline[_to] = block.number + 200000;
-...
-}
+If you prefer to use an environment variable, your `.bashrc` or `.bash_profile` should look something like:
+
+```bash
+export MNEMONIC='my good mnemonic ...'
 ```
 
-Once a time period as passed, the wallet owner can do a contract call to receive the tokens. (Data: `0x6ce5b3cf`)
-```
-function releaseHeldCoins()
-```
+You can use [https://iancoleman.io/bip39/](https://iancoleman.io/bip39/) to generate a mnemonic and derive its `m/44'/60'/0'/0/0` address.
+
+*Ref: Forked from* [tcr](https://github.com/skmgoldin/tcr)
