@@ -1,26 +1,26 @@
 {
   "paramDefaults": {
-    "minDeposit": 10,
-    "pMinDeposit": 100,
-    "applyStageLength": 600,
-    "pApplyStageLength": 1200,
-    "commitStageLength": 600,
-    "pCommitStageLength": 1200,
-    "revealStageLength": 600,
-    "pRevealStageLength": 1200,
-    "dispensationPct": 50,
-    "pDispensationPct": 50,
+    "minDeposit": 75,
+    "pMinDeposit": 75,
+    "applyStageLength": 35577,
+    "pApplyStageLength": 35577,
+    "commitStageLength": 35577,
+    "pCommitStageLength": 35577,
+    "revealStageLength": 5083,
+    "pRevealStageLength": 5083,
+    "dispensationPct": 100,
+    "pDispensationPct": 100,
     "voteQuorum": 50,
     "pVoteQuorum": 50
 	},
-  "name": "GIVE TCR",
+  "name": "GIVE Registry",
   "token": {
-    "address": "0x337cDDa6D41A327c5ad456166CCB781a9722AFf9",
+    "address": "0x",
     "deployToken": true,
     "decimals": "18",
-    "name": "GIVE",
+    "name": "Give Foundation Token",
     "symbol": "GIV",
-    "supply": "33333333000000000000000000",
+    "supply": "2524171103000000000000000000",
     "tokenHolders": []
   }
 }

@@ -17,30 +17,37 @@ Defaults Parameters:
   <tr>
     <td><b>Parameter</td>
     <td><b>Description</td>
+    <td><b>Default Value</td>
   </tr>
   <tr>
     <td>minDeposit</td>
     <td>The number of tokens a candidate must lock as a deposit for their application, and for the duration of their listing thereafter.</td>
+    <td>75</td>
   </tr>
   <tr>
     <td>applyStageLen</td>
     <td>The duration, in blocks or epoch time, during which an application can be challenged. If this period passes with no challenge being issued, the candidate becomes a listee.</td>
+    <td>7 days</td>
   </tr>
   <tr>
     <td>commitStageLen</td>
     <td>The duration, in blocks or epoch time, during which token holders can commit votes for a particular challenge.</td>
+    <td>7 days</td>
   </tr>
   <tr>
     <td>revealStageLen</td>
     <td>The duration, in blocks or epoch time, during which token holders can reveal committed votes for a particular challenge.</td>
+    <td>1 day</td>
   </tr>
   <tr>
     <td>dispensationPct</td>
     <td>The percentage of the forfeited deposit in a challenge which is awarded to the winning party as a special dispensation compensating for their capital risk.</td>
+    <td>100%</td>
   </tr>
   <tr>
-    <td>voteQuorum [1]</td>
+    <td>voteQuorum</td>
     <td>The percentage of tokens out of the total tokens revealed in favor of admitting/keeping a challenged candidate necessary for that candidate to get/keep listee status. The VOTE_QUORUM does not count non-voting tokens, and unrevealed tokens are considered non-voting. By way of example, a VOTE_QUORUM of 50 means all challenges are simple majority votes.</td>
+    <td>50%</td>
   </tr>
 </table>
 
